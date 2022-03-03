@@ -2,21 +2,43 @@
     <div class="elevator-shaft">
         <div v-for="(floor, i) in floors" :key="i" class="floor">
             {{ floor }}
-            <div v-if="floor === 1" class="elevator"></div>
+            <Transition
+                ><AppElevator v-if="currentFloor === floor"
+            /></Transition>
         </div>
     </div>
 </template>
 
 <script>
+import AppElevator from "./AppElevator.vue";
 export default {
+    data() {
+        return {
+            currentFloor: 1,
+        };
+    },
+    components: { AppElevator },
     props: {
         floors: {
             type: Number,
             required: true,
         },
-        callToRespond: {
+        destinationFloor: {
             type: Number,
             required: false,
+        },
+    },
+    emits: {
+        "floor-set": null,
+    },
+
+    watch: {
+        destinationFloor(floor) {
+            if (!floor || this.currentFloor === this.destinationFloor) {
+                return;
+            }
+            this.currentFloor = this.destinationFloor;
+            this.$emit("floor-set");
         },
     },
 };
@@ -47,13 +69,5 @@ export default {
     display: block;
     width: 100%;
     border: 1px dashed blue;
-}
-.elevator {
-    background-color: aqua;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-
-    z-index: -3;
 }
 </style>
