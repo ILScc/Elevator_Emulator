@@ -5,7 +5,10 @@
             :key="i"
             class="elevator-controls__container"
         >
-            <button class="elevator-controls__btn">
+            <button
+                @click="$emit('elevator-called', floor)"
+                class="elevator-controls__btn"
+            >
                 Call elevator on floor {{ floor }}
             </button>
         </div>
@@ -14,12 +17,15 @@
 
 <script>
 export default {
-    props:{
+    props: {
         floors: {
             type: Number,
-            required: true
-        }
-    }
+            required: true,
+        },
+    },
+    emits: {
+        "elevator-called": null,
+    },
 };
 </script>
 

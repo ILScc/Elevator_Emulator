@@ -14,6 +14,10 @@ export default {
             type: Number,
             required: true,
         },
+        callToRespond: {
+            type: Number,
+            required: false,
+        },
     },
 };
 </script>

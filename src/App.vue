@@ -4,8 +4,9 @@
             v-for="shaft in elevatorShafts"
             :key="shaft"
             :floors="floors"
+            :callToRespond="earliestCall"
         />
-        <ElevatorControls :floors="floors" />
+        <ElevatorControls @elevator-called="handleCall" :floors="floors" />
     </div>
 </template>
 
@@ -18,7 +19,18 @@ export default {
         return {
             elevatorShafts: 1,
             floors: 5,
+            callsQueue: [],
         };
+    },
+    methods: {
+        handleCall(floor) {
+            this.callsQueue.push(floor);
+        },
+    },
+    computed: {
+        earliestCall() {
+            return this.callsQueue[0];
+        },
     },
 };
 </script>
