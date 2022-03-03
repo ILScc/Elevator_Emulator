@@ -1,6 +1,10 @@
 <template>
     <div class="container">
-        <ElevatorShaft :floors="floors" />
+        <ElevatorShaft
+            v-for="shaft in elevatorShafts"
+            :key="shaft"
+            :floors="floors"
+        />
         <ElevatorControls :floors="floors" />
     </div>
 </template>
@@ -27,7 +31,7 @@ export default {
     display: grid;
     width: 1200px;
     height: 600px;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     grid-template-rows: 1fr;
     box-sizing: border-box;
 }
