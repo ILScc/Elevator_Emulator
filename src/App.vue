@@ -1,18 +1,34 @@
 <template>
     <div class="container">
         <div class="elevator-shaft">
-            <div class="floor"></div>
-            <div class="floor"></div>
-            <div class="floor"></div>
-            <div class="floor"></div>
-            <div class="floor"><div class="elevator"></div></div>
+            <div v-for="(floor, i) in floors" :key="i" class="floor">
+                {{ floor }}
+                <div v-if="floor === 1" class="elevator"></div>
+            </div>
         </div>
-        <div class="elevator-controls"></div>
+        <div class="elevator-controls">
+            <div
+                v-for="(floor, i) in floors"
+                :key="i"
+                class="elevator-controls__container"
+            >
+                <button class="elevator-controls__btn">
+                    Call elevator on floor {{ floor }}
+                </button>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-export default {};
+export default {
+    data() {
+        return {
+            elevatorShafts: 1,
+            floors: 5,
+        };
+    },
+};
 </script>
 
 <style scoped>
@@ -26,19 +42,21 @@ export default {};
 }
 .elevator-shaft {
     box-sizing: inherit;
-    display: grid;
+    display: flex;
+    flex-direction: column-reverse;
     border: 1px solid black;
     width: 100%;
     height: 100%;
 }
 .floor {
     width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
 }
-.floor:not(:first-child):before {
+.floor:not(:last-child):before {
     content: "";
     position: absolute;
     top: 0;
@@ -51,9 +69,25 @@ export default {};
     background-color: aqua;
     width: 100%;
     height: 100%;
+    position: absolute;
+
+    z-index: -3;
 }
 .elevator-controls {
-    box-sizing: inherit;
+    display: flex;
+    flex-direction: column-reverse;
     border: 1px solid tomato;
+}
+.elevator-controls__btn {
+    width: 30%;
+    height: 30%;
+}
+.elevator-controls__container {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 </style>
