@@ -13,16 +13,13 @@
 import ElevatorShaft from "./components/ElevatorShaft.vue";
 import ElevatorControls from "./components/ElevatorControls.vue";
 export default {
-    componets: {
-        ElevatorShaft,
-    },
+    components: { ElevatorShaft, ElevatorControls },
     data() {
         return {
             elevatorShafts: 1,
             floors: 5,
         };
     },
-    components: { ElevatorShaft, ElevatorControls },
 };
 </script>
 
