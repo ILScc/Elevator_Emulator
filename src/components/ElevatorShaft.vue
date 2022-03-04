@@ -1,9 +1,12 @@
 <template>
     <div class="elevator-shaft">
         <div v-for="(floor, i) in floors" :key="i" class="floor">
-            {{ floor }}
-            <Transition
-                ><AppElevator v-if="currentFloor === floor"
+            <span class="floor__number">{{ floor }}</span>
+            <Transition name="elevator"
+                ><AppElevator
+                    :destination="destinationFloor"
+                    :currentFloor="currentFloor"
+                    v-if="currentFloor === floor"
             /></Transition>
         </div>
     </div>
@@ -38,17 +41,31 @@ export default {
                 return;
             }
             if (oldFloor === newFloor) {
-                this.$emit("floor-set");
                 return;
             }
-            this.currentFloor = newFloor;
-            this.$emit("floor-set");
+            setTimeout(() => {
+                this.currentFloor = newFloor;
+                this.$emit("floor-set");
+            }, 1000);
         },
     },
 };
 </script>
 
 <style scoped>
+.elevator-enter-active {
+    transition: all 0.3s ease-out;
+}
+
+.elevator-leave-active {
+    transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.elevator-enter-from,
+.elevator-leave-to {
+    transform: translateX(20px);
+    opacity: 0;
+}
 .elevator-shaft {
     box-sizing: inherit;
     display: flex;
@@ -61,9 +78,13 @@ export default {
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
     position: relative;
+}
+.floor__number {
+    position: absolute;
+    top: 15px;
+    left: 15px;
 }
 .floor:not(:last-child)::before {
     content: "";
