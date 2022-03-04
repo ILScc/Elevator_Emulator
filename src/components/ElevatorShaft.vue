@@ -33,11 +33,15 @@ export default {
     },
 
     watch: {
-        destinationFloor(floor) {
-            if (!floor || this.currentFloor === this.destinationFloor) {
+        destinationFloor(newFloor, oldFloor) {
+            if (!newFloor) {
                 return;
             }
-            this.currentFloor = this.destinationFloor;
+            if (oldFloor === newFloor) {
+                this.$emit("floor-set");
+                return;
+            }
+            this.currentFloor = newFloor;
             this.$emit("floor-set");
         },
     },
@@ -61,7 +65,7 @@ export default {
     align-items: center;
     position: relative;
 }
-.floor:not(:last-child):before {
+.floor:not(:last-child)::before {
     content: "";
     position: absolute;
     top: 0;

@@ -42,8 +42,8 @@ export default {
 .elevator-controls__container {
     margin-left: 10px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
 }
