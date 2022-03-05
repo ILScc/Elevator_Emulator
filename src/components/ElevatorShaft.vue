@@ -4,6 +4,7 @@
             <span class="floor__number">{{ floor }}</span>
             <Transition :name="currentMovement"
                 ><AppElevator
+                    :style="{ '--length': diff }"
                     :destination="destinationFloor"
                     :currentFloor="currentFloor"
                     v-if="currentFloor === floor"
@@ -20,6 +21,7 @@ export default {
             currentFloor: 1,
             prevFloor: null,
             currentMovement: "",
+            diff: "",
         };
     },
 
@@ -37,27 +39,19 @@ export default {
     emits: {
         "floor-set": null,
     },
-    computed: {
-        transformLength() {
-            const diff = this.currentFloor - this.prevFloor;
-            return `${diff}00%`;
-        },
-    },
+
     watch: {
         destinationFloor(newFloor) {
             if (!newFloor) {
                 return;
             }
-            this.prevFloor = this.currentFloor;
-            console.log("in watch", this.currentFloor, newFloor);
-            //TODO: this only works in one direction
+            this.diff = `${newFloor - this.currentFloor}00%`;
             this.currentFloor < newFloor
                 ? (this.currentMovement = "up")
                 : (this.currentMovement = "down");
             setTimeout(() => {
                 this.currentFloor = newFloor;
                 this.$emit("floor-set");
-                console.log(this.currentFloor, this.prevFloor);
             }, 1000);
         },
     },
@@ -71,10 +65,10 @@ export default {
 }
 
 .up-enter-from {
-    transform: translateY(v-bind(transformLength));
+    transform: translateY(var(--length));
 }
 .down-enter-from {
-    transform: translateY(v-bind(transformLength));
+    transform: translateY(var(--length));
 }
 .elevator-shaft {
     box-sizing: inherit;
