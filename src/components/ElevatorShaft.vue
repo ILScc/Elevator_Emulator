@@ -5,7 +5,10 @@
             <Transition :name="currentMovement"
                 ><AppElevator
                     :class="{ waiting: isWaiting }"
-                    :style="{ '--length': diff }"
+                    :style="{
+                        '--length': floorsOffset,
+                        '--moveTime': moveTime,
+                    }"
                     :destination="destinationFloor"
                     :currentFloor="currentFloor"
                     :prevFloor="prevFloor"
@@ -23,11 +26,12 @@ export default {
             prevFloor: 1,
             currentFloor: 1,
             currentMovement: "",
-            diff: "",
+            floorsOffset: "",
+            moveTime: "",
             isWaiting: false,
         };
     },
-
+    ELEVATOR_WAITING_TIME: 3000,
     components: { AppElevator },
     props: {
         floors: {
@@ -44,9 +48,12 @@ export default {
     },
     methods: {
         async elevatorWorking() {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const movingTime = Number.parseInt(this.moveTime);
+            await new Promise((resolve) => setTimeout(resolve, movingTime));
             await Promise.resolve((this.isWaiting = true));
-            await new Promise((resolve) => setTimeout(resolve, 3000));
+            await new Promise((resolve) =>
+                setTimeout(resolve, this.$options.ELEVATOR_WAITING_TIME)
+            );
             await Promise.resolve((this.isWaiting = false));
             this.$emit("floor-set");
         },
@@ -57,7 +64,10 @@ export default {
                 return;
             }
             this.prevFloor = this.currentFloor;
-            this.diff = `${destination - this.currentFloor}00%`;
+            const offset = destination - this.currentFloor;
+            this.floorsOffset = `${offset}00%`;
+            this.moveTime = `${Math.abs(offset * 1000)}ms`;
+            console.log(this.moveTime);
             this.currentFloor < destination
                 ? (this.currentMovement = "up")
                 : (this.currentMovement = "down");
@@ -71,7 +81,7 @@ export default {
 <style scoped>
 .up-enter-active,
 .down-enter-active {
-    transition: all 1s ease-out;
+    transition: all var(--moveTime) ease-out;
 }
 
 .up-enter-from {
