@@ -4,9 +4,11 @@
             <span class="floor__number">{{ floor }}</span>
             <Transition :name="currentMovement"
                 ><AppElevator
+                    :class="{ waiting: isWaiting }"
                     :style="{ '--length': diff }"
                     :destination="destinationFloor"
                     :currentFloor="currentFloor"
+                    :prevFloor="prevFloor"
                     v-if="currentFloor === floor"
             /></Transition>
         </div>
@@ -18,10 +20,11 @@ import AppElevator from "./AppElevator.vue";
 export default {
     data() {
         return {
+            prevFloor: 1,
             currentFloor: 1,
-            prevFloor: null,
             currentMovement: "",
             diff: "",
+            isWaiting: false,
         };
     },
 
@@ -39,20 +42,27 @@ export default {
     emits: {
         "floor-set": null,
     },
-
+    methods: {
+        async elevatorWorking() {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await Promise.resolve((this.isWaiting = true));
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            await Promise.resolve((this.isWaiting = false));
+            this.$emit("floor-set");
+        },
+    },
     watch: {
-        destinationFloor(newFloor) {
-            if (!newFloor) {
+        destinationFloor(destination) {
+            if (!destination) {
                 return;
             }
-            this.diff = `${newFloor - this.currentFloor}00%`;
-            this.currentFloor < newFloor
+            this.prevFloor = this.currentFloor;
+            this.diff = `${destination - this.currentFloor}00%`;
+            this.currentFloor < destination
                 ? (this.currentMovement = "up")
                 : (this.currentMovement = "down");
-            setTimeout(() => {
-                this.currentFloor = newFloor;
-                this.$emit("floor-set");
-            }, 1000);
+            this.currentFloor = destination;
+            this.elevatorWorking();
         },
     },
 };
@@ -67,8 +77,24 @@ export default {
 .up-enter-from {
     transform: translateY(var(--length));
 }
+
 .down-enter-from {
     transform: translateY(var(--length));
+}
+.waiting {
+    animation: flash 3s;
+}
+@keyframes flash {
+    from,
+    50%,
+    to {
+        opacity: 1;
+    }
+
+    25%,
+    75% {
+        opacity: 0;
+    }
 }
 .elevator-shaft {
     box-sizing: inherit;

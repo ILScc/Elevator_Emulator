@@ -13,7 +13,7 @@
                     alt="arrow down"
                 />
             </div>
-            {{ destination }}
+            {{ currentFloor }}
         </div>
     </div>
 </template>
@@ -29,13 +29,17 @@ export default {
             type: Number,
             required: true,
         },
+        prevFloor: {
+            type: Number,
+            required: true,
+        },
     },
     computed: {
         elevatorUp() {
-            return this.currentFloor < this.destination;
+            return this.prevFloor < this.destination;
         },
         elevatorDown() {
-            return this.currentFloor > this.destination;
+            return this.prevFloor > this.destination;
         },
     },
 };
