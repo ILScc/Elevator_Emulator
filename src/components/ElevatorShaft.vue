@@ -2,7 +2,7 @@
     <div class="elevator-shaft">
         <div v-for="(floor, i) in floors" :key="i" class="floor">
             <span class="floor__number">{{ floor }}</span>
-            <Transition name="elevator"
+            <Transition :name="currentMovement"
                 ><AppElevator
                     :destination="destinationFloor"
                     :currentFloor="currentFloor"
@@ -18,8 +18,11 @@ export default {
     data() {
         return {
             currentFloor: 1,
+            prevFloor: null,
+            currentMovement: "",
         };
     },
+
     components: { AppElevator },
     props: {
         floors: {
@@ -34,18 +37,27 @@ export default {
     emits: {
         "floor-set": null,
     },
-
+    computed: {
+        transformLength() {
+            const diff = this.currentFloor - this.prevFloor;
+            return `${diff}00%`;
+        },
+    },
     watch: {
-        destinationFloor(newFloor, oldFloor) {
+        destinationFloor(newFloor) {
             if (!newFloor) {
                 return;
             }
-            if (oldFloor === newFloor) {
-                return;
-            }
+            this.prevFloor = this.currentFloor;
+            console.log("in watch", this.currentFloor, newFloor);
+            //TODO: this only works in one direction
+            this.currentFloor < newFloor
+                ? (this.currentMovement = "up")
+                : (this.currentMovement = "down");
             setTimeout(() => {
                 this.currentFloor = newFloor;
                 this.$emit("floor-set");
+                console.log(this.currentFloor, this.prevFloor);
             }, 1000);
         },
     },
@@ -53,18 +65,16 @@ export default {
 </script>
 
 <style scoped>
-.elevator-enter-active {
-    transition: all 0.3s ease-out;
+.up-enter-active,
+.down-enter-active {
+    transition: all 1s ease-out;
 }
 
-.elevator-leave-active {
-    transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+.up-enter-from {
+    transform: translateY(v-bind(transformLength));
 }
-
-.elevator-enter-from,
-.elevator-leave-to {
-    transform: translateX(20px);
-    opacity: 0;
+.down-enter-from {
+    transform: translateY(v-bind(transformLength));
 }
 .elevator-shaft {
     box-sizing: inherit;

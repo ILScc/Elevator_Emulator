@@ -41,9 +41,10 @@ export default {
 
 <style scoped>
 .container {
+    margin: 50px;
     display: grid;
     width: 1200px;
-    height: 600px;
+    height: 750px;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     grid-template-rows: 1fr;
     box-sizing: border-box;
