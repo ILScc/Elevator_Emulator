@@ -31,21 +31,23 @@ export default {
         };
     },
     methods: {
+        validateCall(calledFloor, isAccepted, rejectReason) {
+            this.callStatus = {
+                calledFloor,
+                accepted: isAccepted,
+                reason: rejectReason,
+            };
+        },
         handleCall(floor) {
             if (this.callsQueue.includes(floor)) {
-                this.callStatus.accepted = false;
-                this.callStatus.calledFloor = floor;
-                this.callStatus.reason = "ALREADY CALLED";
+                this.validateCall(floor, false, "ALREADY CALLED");
                 return;
             }
             if (this.occupiedFloor === floor) {
-                this.callStatus.accepted = false;
-                this.callStatus.calledFloor = floor;
-                this.callStatus.reason = "ALREADY ON FLOOR";
+                this.validateCall(floor, false, "ALREADY ON FLOOR");
                 return;
             }
-            this.callStatus.accepted = true;
-
+            this.validateCall(floor, true);
             this.callsQueue.push(floor);
         },
         onElevatorReady() {

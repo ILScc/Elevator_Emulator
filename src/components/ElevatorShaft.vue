@@ -2,12 +2,12 @@
     <div class="elevator-shaft">
         <div v-for="(floor, i) in floors" :key="i" class="floor">
             <span class="floor__number">{{ floor }}</span>
-            <Transition :name="currentMovement"
+            <Transition name="movement"
                 ><AppElevator
                     :class="{ waiting: isWaiting }"
                     :style="{
-                        '--length': floorsOffset,
-                        '--move-time': moveTime,
+                        '--floors-to-go': `${floorsOffset}00%`,
+                        '--move-time': `${Math.abs(floorsOffset * 1000)}ms`,
                         '--wait-time': `${$options.ELEVATOR_WAITING_TIME}ms`,
                     }"
                     :destination="destinationFloor"
@@ -27,8 +27,7 @@ export default {
             prevFloor: 1,
             currentFloor: 1,
             currentMovement: "",
-            floorsOffset: "",
-            moveTime: "",
+            floorsOffset: 0,
             isWaiting: false,
         };
     },
@@ -50,7 +49,7 @@ export default {
     },
     methods: {
         async elevatorWorking() {
-            const movingTime = Number.parseInt(this.moveTime);
+            const movingTime = Math.abs(this.floorsOffset * 1000);
             await new Promise((resolve) => setTimeout(resolve, movingTime));
             await Promise.resolve((this.isWaiting = true));
             await new Promise((resolve) =>
@@ -65,15 +64,8 @@ export default {
             if (!destination) {
                 return;
             }
-            const offset = destination - this.currentFloor;
-
+            this.floorsOffset = destination - this.currentFloor;
             this.prevFloor = this.currentFloor;
-            this.floorsOffset = `${offset}00%`;
-            this.moveTime = `${Math.abs(offset * 1000)}ms`;
-
-            this.currentFloor < destination
-                ? (this.currentMovement = "up")
-                : (this.currentMovement = "down");
 
             this.currentFloor = destination;
             this.$emit("elevator-landed", this.currentFloor);
@@ -84,18 +76,14 @@ export default {
 </script>
 
 <style scoped>
-.up-enter-active,
-.down-enter-active {
+.movement-enter-active {
     transition: all var(--move-time) ease-out;
 }
 
-.up-enter-from {
-    transform: translateY(var(--length));
+.movement-enter-from {
+    transform: translateY(var(--floors-to-go));
 }
 
-.down-enter-from {
-    transform: translateY(var(--length));
-}
 .waiting {
     animation: flash var(--wait-time);
 }
