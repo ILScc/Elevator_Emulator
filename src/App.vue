@@ -82,7 +82,10 @@ export default {
                 this.validateCall(floor, false, "ALREADY CALLED");
                 return;
             }
-            if (this.currentFloor === floor) {
+            const alreadyOnFloor = this.shaftsToRender.find(
+                (shaft) => shaft.currentFloor === floor
+            );
+            if (alreadyOnFloor) {
                 this.validateCall(floor, false, "ALREADY ON FLOOR");
                 return;
             }
