@@ -7,7 +7,8 @@
                     :class="{ waiting: isWaiting }"
                     :style="{
                         '--length': floorsOffset,
-                        '--moveTime': moveTime,
+                        '--move-time': moveTime,
+                        '--wait-time': `${$options.ELEVATOR_WAITING_TIME}ms`,
                     }"
                     :destination="destinationFloor"
                     :currentFloor="currentFloor"
@@ -67,7 +68,6 @@ export default {
             const offset = destination - this.currentFloor;
             this.floorsOffset = `${offset}00%`;
             this.moveTime = `${Math.abs(offset * 1000)}ms`;
-            console.log(this.moveTime);
             this.currentFloor < destination
                 ? (this.currentMovement = "up")
                 : (this.currentMovement = "down");
@@ -81,7 +81,7 @@ export default {
 <style scoped>
 .up-enter-active,
 .down-enter-active {
-    transition: all var(--moveTime) ease-out;
+    transition: all var(--move-time) ease-out;
 }
 
 .up-enter-from {
@@ -92,7 +92,7 @@ export default {
     transform: translateY(var(--length));
 }
 .waiting {
-    animation: flash 3s;
+    animation: flash var(--wait-time);
 }
 @keyframes flash {
     from,
