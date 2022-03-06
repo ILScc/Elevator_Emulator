@@ -33,7 +33,9 @@ export default {
     },
     ELEVATOR_WAITING_TIME: 3000,
     components: { AppElevator },
-
+    mounted() {
+        console.log(this.destinationFloor, this.currentFloor);
+    },
     props: {
         floors: {
             type: Number,
@@ -63,12 +65,11 @@ export default {
     },
     methods: {
         async elevatorWorking(destination) {
-            this.$emit("in-progress", this.shaftId);
             const movingTime = Math.abs(this.floorsOffset * 1000);
 
             this.$emit("elevator-landed", [this.shaftId, destination]);
-
             await new Promise((resolve) => setTimeout(resolve, movingTime));
+
             await Promise.resolve((this.isWaiting = true));
             await new Promise((resolve) =>
                 setTimeout(resolve, this.$options.ELEVATOR_WAITING_TIME)
@@ -78,14 +79,18 @@ export default {
         },
     },
     watch: {
-        destinationFloor(destination) {
-            if (!destination) {
-                return;
-            }
-            this.floorsOffset = destination - this.currentFloor;
-            this.prevFloor = this.currentFloor;
+        destinationFloor: {
+            handler(destination) {
+                if (!destination) {
+                    return;
+                }
+                this.floorsOffset = destination - this.currentFloor;
+                this.prevFloor = this.currentFloor;
 
-            this.elevatorWorking(destination);
+                this.elevatorWorking(destination);
+            },
+            immediate: true,
+            flush: "post",
         },
     },
 };

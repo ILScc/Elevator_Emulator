@@ -12,7 +12,6 @@
             :shaftId="shaftId"
             @elevator-ready="onElevatorReady"
             @elevator-landed="onElevatorLanded"
-            @in-progress="onInProgress"
         />
         <ElevatorControls
             :callStatus="callStatus"
@@ -30,8 +29,8 @@ export default {
     data() {
         return {
             shaftsToRender: [],
-            totalShafts: 4,
-            floors: 5,
+            totalShafts: 3,
+            floors: 8,
             callsQueue: [],
             callStatus: { calledFloor: null, accepted: true, reason: "" },
         };
@@ -39,26 +38,14 @@ export default {
     mounted() {
         this.shaftsToRender = this.createShafts();
         const callsState = localStorage.getItem("callsQueue");
-
-        for (let i = 1; i <= this.totalShafts; i++) {
-            const savedCurrentFloor = localStorage.getItem(`shaft${i}`);
-            if (savedCurrentFloor) {
-                const currentFloor = JSON.parse(savedCurrentFloor);
-                const shaft = this.findShaft(i);
-                shaft.currentFloor = currentFloor;
-            }
-        }
         if (callsState) {
             const queue = JSON.parse(callsState);
             this.callsQueue = queue;
         }
-        console.log(this.closestToDestination);
+        this.callsQueue.push("");
+        this.callsQueue.pop();
     },
     methods: {
-        onInProgress(id) {
-            const targetShaft = this.findShaft(id);
-            targetShaft.isReady = false;
-        },
         findShaft(id) {
             return this.shaftsToRender.find((shaft) => shaft.shaftId === id);
         },
@@ -66,7 +53,7 @@ export default {
             const shaftsToRender = [];
             for (let i = 1; i <= this.totalShafts; i++) {
                 const savedCurrentFloor = JSON.parse(
-                    localStorage.getItem(`${i}currentFloor`)
+                    localStorage.getItem(`shaft${i}`)
                 );
                 const currentFloor = savedCurrentFloor ? savedCurrentFloor : 1;
                 shaftsToRender.push({
@@ -105,8 +92,9 @@ export default {
             shaft.isReady = true;
         },
         onElevatorLanded([shaftId, currentFloor]) {
-            const shaft = this.findShaft(shaftId);
-            shaft.currentFloor = currentFloor;
+            const targetShaft = this.findShaft(shaftId);
+            targetShaft.isReady = false;
+            targetShaft.currentFloor = currentFloor;
             localStorage.setItem(
                 `shaft${shaftId}`,
                 JSON.stringify(currentFloor)
@@ -143,11 +131,12 @@ export default {
     },
     watch: {
         callsQueue: {
-            handler() {
+            handler(newVal, prevVal) {
                 localStorage.setItem(
                     "callsQueue",
                     JSON.stringify(this.callsQueue)
                 );
+                console.log("new", newVal, "prev", prevVal);
             },
             deep: true,
         },
