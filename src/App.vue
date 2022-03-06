@@ -5,7 +5,8 @@
             :key="shaft"
             :floors="floors"
             :destinationFloor="earliestCall"
-            @floor-set="handleFloorSet"
+            @elevator-ready="onElevatorReady"
+            @elevator-landed="onElevatorLanded"
         />
         <ElevatorControls @elevator-called="handleCall" :floors="floors" />
     </div>
@@ -21,14 +22,24 @@ export default {
             elevatorShafts: 1,
             floors: 5,
             callsQueue: [],
+            occupiedFloor: 1,
         };
     },
     methods: {
         handleCall(floor) {
+            if (
+                this.callsQueue.includes(floor) ||
+                this.occupiedFloor === floor
+            ) {
+                return;
+            }
             this.callsQueue.push(floor);
         },
-        handleFloorSet() {
+        onElevatorReady() {
             this.callsQueue.shift();
+        },
+        onElevatorLanded(currentFloor) {
+            this.occupiedFloor = currentFloor;
         },
     },
     computed: {

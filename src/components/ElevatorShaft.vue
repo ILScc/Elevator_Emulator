@@ -45,7 +45,8 @@ export default {
         },
     },
     emits: {
-        "floor-set": null,
+        "elevator-ready": null,
+        "elevator-landed": null,
     },
     methods: {
         async elevatorWorking() {
@@ -56,7 +57,7 @@ export default {
                 setTimeout(resolve, this.$options.ELEVATOR_WAITING_TIME)
             );
             await Promise.resolve((this.isWaiting = false));
-            this.$emit("floor-set");
+            this.$emit("elevator-ready", this.currentFloor);
         },
     },
     watch: {
@@ -64,14 +65,18 @@ export default {
             if (!destination) {
                 return;
             }
-            this.prevFloor = this.currentFloor;
             const offset = destination - this.currentFloor;
+
+            this.prevFloor = this.currentFloor;
             this.floorsOffset = `${offset}00%`;
             this.moveTime = `${Math.abs(offset * 1000)}ms`;
+
             this.currentFloor < destination
                 ? (this.currentMovement = "up")
                 : (this.currentMovement = "down");
+
             this.currentFloor = destination;
+            this.$emit("elevator-landed", this.currentFloor);
             this.elevatorWorking();
         },
     },
