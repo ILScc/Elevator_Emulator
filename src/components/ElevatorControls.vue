@@ -8,6 +8,12 @@
             <button
                 @click="$emit('elevator-called', floor)"
                 class="elevator-controls__btn"
+                :class="{
+                    'elevator-controls__btn_rejected':
+                        callStatus.calledFloor === floor &&
+                        !callStatus.accepted,
+                }"
+                :data-reason="`${callStatus.reason}`"
             >
                 Call elevator on floor {{ floor }}
             </button>
@@ -20,6 +26,10 @@ export default {
     props: {
         floors: {
             type: Number,
+            required: true,
+        },
+        callStatus: {
+            type: Object,
             required: true,
         },
     },
