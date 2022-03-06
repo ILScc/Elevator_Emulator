@@ -5,6 +5,7 @@
             :key="shaft"
             :floors="floors"
             :destinationFloor="earliestCall"
+            :currentFloor="currentFloor"
             @elevator-ready="onElevatorReady"
             @elevator-landed="onElevatorLanded"
         />
@@ -26,9 +27,20 @@ export default {
             elevatorShafts: 1,
             floors: 5,
             callsQueue: [],
-            occupiedFloor: 1,
+            currentFloor: 1,
             callStatus: { calledFloor: null, accepted: true, reason: "" },
         };
+    },
+    mounted() {
+        const callsState = localStorage.getItem("callsQueue");
+        const savedCurrentFloor = localStorage.getItem("currentFloor");
+
+        if (callsState && savedCurrentFloor) {
+            const queue = JSON.parse(callsState);
+            const currentFloor = JSON.parse(savedCurrentFloor);
+            this.currentFloor = currentFloor;
+            this.callsQueue = queue;
+        }
     },
     methods: {
         validateCall(calledFloor, isAccepted, rejectReason) {
@@ -43,7 +55,7 @@ export default {
                 this.validateCall(floor, false, "ALREADY CALLED");
                 return;
             }
-            if (this.occupiedFloor === floor) {
+            if (this.currentFloor === floor) {
                 this.validateCall(floor, false, "ALREADY ON FLOOR");
                 return;
             }
@@ -54,12 +66,24 @@ export default {
             this.callsQueue.shift();
         },
         onElevatorLanded(currentFloor) {
-            this.occupiedFloor = currentFloor;
+            this.currentFloor = currentFloor;
         },
     },
     computed: {
         earliestCall() {
             return this.callsQueue[0];
+        },
+    },
+    watch: {
+        callsQueue: {
+            handler() {
+                localStorage.setItem(
+                    "callsQueue",
+                    JSON.stringify(this.callsQueue)
+                );
+                localStorage.setItem("currentFloor", this.currentFloor);
+            },
+            deep: true,
         },
     },
 };

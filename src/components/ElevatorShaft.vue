@@ -33,6 +33,10 @@ export default {
     },
     ELEVATOR_WAITING_TIME: 3000,
     components: { AppElevator },
+    mounted() {
+        const currentFloor = JSON.parse(localStorage.getItem("currentFloor"));
+        this.currentFloor = currentFloor ? currentFloor : 1;
+    },
     props: {
         floors: {
             type: Number,
