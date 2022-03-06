@@ -15,7 +15,7 @@
                 }"
                 :data-reason="`${callStatus.reason}`"
             >
-                Call elevator on floor {{ floor }}
+                Call on floor {{ floor }}
             </button>
         </div>
     </div>
@@ -54,8 +54,8 @@ export default {
         rgba(0, 0, 0, 0.14) 0 6px 10px 0, rgba(0, 0, 0, 0.12) 0 1px 18px 0;
     color: #3c4043;
     cursor: pointer;
-    font-size: 14px;
-    height: 48px;
+    font-size: 16px;
+    height: 50%;
     justify-content: center;
     letter-spacing: 0.25px;
     max-width: 100%;
@@ -86,7 +86,6 @@ export default {
     top: -50%;
 }
 .elevator-controls__container {
-    margin-left: 10px;
     display: flex;
     justify-content: center;
     align-items: center;

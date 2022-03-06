@@ -29,8 +29,8 @@ export default {
     data() {
         return {
             shaftsToRender: [],
-            totalShafts: 3,
-            floors: 8,
+            totalShafts: 1,
+            floors: 5,
             callsQueue: [],
             callStatus: { calledFloor: null, accepted: true, reason: "" },
         };
@@ -124,19 +124,17 @@ export default {
                     minDiffShafts.push(shaftId);
                 }
             });
-            console.log("ALl", minDiffShafts);
 
             return Math.min(...minDiffShafts);
         },
     },
     watch: {
         callsQueue: {
-            handler(newVal, prevVal) {
+            handler() {
                 localStorage.setItem(
                     "callsQueue",
                     JSON.stringify(this.callsQueue)
                 );
-                console.log("new", newVal, "prev", prevVal);
             },
             deep: true,
         },
@@ -146,10 +144,12 @@ export default {
 
 <style scoped>
 .container {
-    margin: 50px;
+    margin: 0 auto;
     display: grid;
-    width: 1200px;
-    height: 750px;
+    max-width: 1200px;
+    max-height: 780px;
+    width: 100vw;
+    height: 100vh;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     grid-template-rows: 1fr;
     box-sizing: border-box;
