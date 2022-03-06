@@ -4,12 +4,15 @@
             v-for="{ shaftId, currentFloor, isReady } in shaftsToRender"
             :key="shaftId"
             :floors="floors"
-            :destinationFloor="isReady ? earliestCall : null"
+            :destinationFloor="
+                closestToDestination === shaftId ? earliestCall : null
+            "
             :isReady="isReady"
             :currentFloor="currentFloor"
             :shaftId="shaftId"
             @elevator-ready="onElevatorReady"
             @elevator-landed="onElevatorLanded"
+            @in-progress="onInProgress"
         />
         <ElevatorControls
             :callStatus="callStatus"
@@ -49,8 +52,13 @@ export default {
             const queue = JSON.parse(callsState);
             this.callsQueue = queue;
         }
+        console.log(this.closestToDestination);
     },
     methods: {
+        onInProgress(id) {
+            const targetShaft = this.findShaft(id);
+            targetShaft.isReady = false;
+        },
         findShaft(id) {
             return this.shaftsToRender.find((shaft) => shaft.shaftId === id);
         },
@@ -95,21 +103,42 @@ export default {
         onElevatorReady([shaftId]) {
             const shaft = this.findShaft(shaftId);
             shaft.isReady = true;
-            this.callsQueue.shift();
         },
         onElevatorLanded([shaftId, currentFloor]) {
             const shaft = this.findShaft(shaftId);
-            shaft.isReady = false;
             shaft.currentFloor = currentFloor;
             localStorage.setItem(
                 `shaft${shaftId}`,
                 JSON.stringify(currentFloor)
             );
+            this.callsQueue.shift();
         },
     },
     computed: {
         earliestCall() {
             return this.callsQueue[0];
+        },
+        closestToDestination() {
+            const readyShafts = this.shaftsToRender.filter(
+                ({ isReady }) => isReady
+            );
+            const minDiff = Math.min(
+                ...Object.values(
+                    readyShafts.map((shaft) =>
+                        Math.abs(this.earliestCall - shaft.currentFloor)
+                    )
+                )
+            );
+            const minDiffShafts = [];
+            readyShafts.forEach(({ shaftId, currentFloor, isReady }) => {
+                const diff = Math.abs(this.earliestCall - currentFloor);
+                if (diff === minDiff && isReady) {
+                    minDiffShafts.push(shaftId);
+                }
+            });
+            console.log("ALl", minDiffShafts);
+
+            return Math.min(...minDiffShafts);
         },
     },
     watch: {

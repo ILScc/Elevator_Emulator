@@ -59,9 +59,11 @@ export default {
     emits: {
         "elevator-ready": null,
         "elevator-landed": null,
+        "in-progress": null,
     },
     methods: {
         async elevatorWorking(destination) {
+            this.$emit("in-progress", this.shaftId);
             const movingTime = Math.abs(this.floorsOffset * 1000);
 
             this.$emit("elevator-landed", [this.shaftId, destination]);
