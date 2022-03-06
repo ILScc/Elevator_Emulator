@@ -13,6 +13,7 @@
                     :destination="destinationFloor"
                     :currentFloor="currentFloor"
                     :prevFloor="prevFloor"
+                    :isReady="isReady"
                     v-if="currentFloor === floor"
             /></Transition>
         </div>
@@ -25,7 +26,6 @@ export default {
     data() {
         return {
             prevFloor: 1,
-            currentFloor: 1,
             currentMovement: "",
             floorsOffset: 0,
             isWaiting: false,
@@ -33,10 +33,7 @@ export default {
     },
     ELEVATOR_WAITING_TIME: 3000,
     components: { AppElevator },
-    mounted() {
-        const currentFloor = JSON.parse(localStorage.getItem("currentFloor"));
-        this.currentFloor = currentFloor ? currentFloor : 1;
-    },
+
     props: {
         floors: {
             type: Number,
@@ -46,21 +43,36 @@ export default {
             type: Number,
             required: false,
         },
+        shaftId: {
+            type: Number,
+            required: true,
+        },
+        currentFloor: {
+            type: Number,
+            required: true,
+        },
+        isReady: {
+            type: Boolean,
+            required: true,
+        },
     },
     emits: {
         "elevator-ready": null,
         "elevator-landed": null,
     },
     methods: {
-        async elevatorWorking() {
+        async elevatorWorking(destination) {
             const movingTime = Math.abs(this.floorsOffset * 1000);
+
+            this.$emit("elevator-landed", [this.shaftId, destination]);
+
             await new Promise((resolve) => setTimeout(resolve, movingTime));
             await Promise.resolve((this.isWaiting = true));
             await new Promise((resolve) =>
                 setTimeout(resolve, this.$options.ELEVATOR_WAITING_TIME)
             );
             await Promise.resolve((this.isWaiting = false));
-            this.$emit("elevator-ready", this.currentFloor);
+            this.$emit("elevator-ready", [this.shaftId, destination]);
         },
     },
     watch: {
@@ -71,9 +83,7 @@ export default {
             this.floorsOffset = destination - this.currentFloor;
             this.prevFloor = this.currentFloor;
 
-            this.currentFloor = destination;
-            this.$emit("elevator-landed", this.currentFloor);
-            this.elevatorWorking();
+            this.elevatorWorking(destination);
         },
     },
 };

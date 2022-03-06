@@ -1,7 +1,7 @@
 <template>
     <div class="elevator">
         <div class="elevator__cabin">
-            <div class="elevator__arrow">
+            <div v-if="!isReady" class="elevator__arrow">
                 <img
                     v-if="elevatorUp"
                     src="../assets/ArrowUp.svg"
@@ -21,10 +21,6 @@
 <script>
 export default {
     props: {
-        destination: {
-            type: Number,
-            required: false,
-        },
         currentFloor: {
             type: Number,
             required: true,
@@ -33,13 +29,17 @@ export default {
             type: Number,
             required: true,
         },
+        isReady: {
+            type: Boolean,
+            requred: true,
+        },
     },
     computed: {
         elevatorUp() {
-            return this.prevFloor < this.destination;
+            return this.currentFloor > this.prevFloor;
         },
         elevatorDown() {
-            return this.prevFloor > this.destination;
+            return this.currentFloor < this.prevFloor;
         },
     },
 };

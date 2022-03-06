@@ -1,11 +1,13 @@
 <template>
     <div class="container">
         <ElevatorShaft
-            v-for="shaft in elevatorShafts"
-            :key="shaft"
+            v-for="{ shaftId, currentFloor, isReady } in shaftsToRender"
+            :key="shaftId"
             :floors="floors"
-            :destinationFloor="earliestCall"
+            :destinationFloor="isReady ? earliestCall : null"
+            :isReady="isReady"
             :currentFloor="currentFloor"
+            :shaftId="shaftId"
             @elevator-ready="onElevatorReady"
             @elevator-landed="onElevatorLanded"
         />
@@ -24,25 +26,50 @@ export default {
     components: { ElevatorShaft, ElevatorControls },
     data() {
         return {
-            elevatorShafts: 1,
+            shaftsToRender: [],
+            totalShafts: 4,
             floors: 5,
             callsQueue: [],
-            currentFloor: 1,
             callStatus: { calledFloor: null, accepted: true, reason: "" },
         };
     },
     mounted() {
+        this.shaftsToRender = this.createShafts();
         const callsState = localStorage.getItem("callsQueue");
-        const savedCurrentFloor = localStorage.getItem("currentFloor");
 
-        if (callsState && savedCurrentFloor) {
+        for (let i = 1; i <= this.totalShafts; i++) {
+            const savedCurrentFloor = localStorage.getItem(`shaft${i}`);
+            if (savedCurrentFloor) {
+                const currentFloor = JSON.parse(savedCurrentFloor);
+                const shaft = this.findShaft(i);
+                shaft.currentFloor = currentFloor;
+            }
+        }
+        if (callsState) {
             const queue = JSON.parse(callsState);
-            const currentFloor = JSON.parse(savedCurrentFloor);
-            this.currentFloor = currentFloor;
             this.callsQueue = queue;
         }
     },
     methods: {
+        findShaft(id) {
+            return this.shaftsToRender.find((shaft) => shaft.shaftId === id);
+        },
+        createShafts() {
+            const shaftsToRender = [];
+            for (let i = 1; i <= this.totalShafts; i++) {
+                const savedCurrentFloor = JSON.parse(
+                    localStorage.getItem(`${i}currentFloor`)
+                );
+                const currentFloor = savedCurrentFloor ? savedCurrentFloor : 1;
+                shaftsToRender.push({
+                    shaftId: i,
+                    currentFloor,
+                    isReady: true,
+                });
+            }
+            return shaftsToRender;
+        },
+
         validateCall(calledFloor, isAccepted, rejectReason) {
             this.callStatus = {
                 calledFloor,
@@ -62,11 +89,19 @@ export default {
             this.validateCall(floor, true);
             this.callsQueue.push(floor);
         },
-        onElevatorReady() {
+        onElevatorReady([shaftId]) {
+            const shaft = this.findShaft(shaftId);
+            shaft.isReady = true;
             this.callsQueue.shift();
         },
-        onElevatorLanded(currentFloor) {
-            this.currentFloor = currentFloor;
+        onElevatorLanded([shaftId, currentFloor]) {
+            const shaft = this.findShaft(shaftId);
+            shaft.isReady = false;
+            shaft.currentFloor = currentFloor;
+            localStorage.setItem(
+                `shaft${shaftId}`,
+                JSON.stringify(currentFloor)
+            );
         },
     },
     computed: {
@@ -81,7 +116,6 @@ export default {
                     "callsQueue",
                     JSON.stringify(this.callsQueue)
                 );
-                localStorage.setItem("currentFloor", this.currentFloor);
             },
             deep: true,
         },
