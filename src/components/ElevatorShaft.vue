@@ -33,9 +33,7 @@ export default {
     },
     ELEVATOR_WAITING_TIME: 3000,
     components: { AppElevator },
-    mounted() {
-        console.log(this.destinationFloor, this.currentFloor);
-    },
+
     props: {
         floors: {
             type: Number,

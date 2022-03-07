@@ -28,9 +28,9 @@ export default {
     components: { ElevatorShaft, ElevatorControls },
     data() {
         return {
-            shaftsToRender: [],
             totalShafts: 1,
             floors: 5,
+            shaftsToRender: [],
             callsQueue: [],
             callStatus: { calledFloor: null, accepted: true, reason: "" },
         };
@@ -42,8 +42,6 @@ export default {
             const queue = JSON.parse(callsState);
             this.callsQueue = queue;
         }
-        this.callsQueue.push("");
-        this.callsQueue.pop();
     },
     methods: {
         findShaft(id) {
