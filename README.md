@@ -1,4 +1,6 @@
-# elevator_emulator
+# Elevator emulator
+
+To configure elevator shafts and floors count replace corresponding values in src/App.vue data() method
 
 ## Project setup
 ```
